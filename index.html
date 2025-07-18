@@ -197,8 +197,14 @@
     <script>
         // Nahrať JSON dáta (nahraďte cestou k vášmu súboru)
         fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
+    .then(response => response.json())
+    .then(data => {
+        // Tu spracujte dáta a aktualizujte HTML
+        console.log("Dáta načítané:", data);
+        document.getElementById('pv-power').textContent = data.pvPower + ' kW';
+        // ... ostatné prvky
+    })
+    .catch(error => console.error('Chyba pri načítavaní JSON:', error));
                 // Aktualizácia UI s dátami z JSON
                 document.getElementById('created-date').textContent = data.createdDate;
                 document.getElementById('pv-capacity').textContent = data.pvCapacity + ' kW';
