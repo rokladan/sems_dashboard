@@ -194,38 +194,47 @@
         </div>
     </div>
 
+
 <script>
     fetch('data.json')
-        .then(response => response.json())
-        .then(data => {
-            console.log("Dáta načítané:", data);
-            
-            // Aktualizácia UI s dátami z JSON
-            document.getElementById('created-date').textContent = data.createdDate;
-            document.getElementById('pv-capacity').textContent = data.pvCapacity + ' kW';
-            document.getElementById('battery-capacity').textContent = data.batteryCapacity + ' kWh';
-            document.getElementById('location').textContent = data.location;
-            
-            document.getElementById('pv-power').textContent = data.pvPower + ' kW';
-            document.getElementById('battery-soc').textContent = data.batterySOC + '%';
-            
-            document.getElementById('pv-generation-today').textContent = data.pvGenerationToday + ' kWh';
-            document.getElementById('income-today').textContent = data.incomeToday + ' EUR';
-            document.getElementById('total-generation').textContent = data.totalGeneration + ' kWh';
-            document.getElementById('total-income').textContent = data.totalIncome + ' EUR';
-            
-            document.getElementById('generation').textContent = data.generation + ' kWh';
-            document.getElementById('income').textContent = data.income + ' EUR';
-            
-            document.getElementById('pv-w').textContent = data.pvW;
-            document.getElementById('battery-w').textContent = data.batteryW;
-            document.getElementById('grid-w').textContent = data.gridW;
-            document.getElementById('load-w').textContent = data.loadW;
-            
-            document.getElementById('current-date').textContent = data.currentDate;
-            document.getElementById('soc').textContent = data.soc + '%';
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
         })
-        .catch(error => console.error('Chyba pri načítavaní JSON:', error));
+        .then(data => {
+            console.log("Načítané dáta:", data); // Debug výpis
+
+            // Hlavné hodnoty
+            document.getElementById('pv-power').textContent = `${data.production_kw?.toFixed(2) ?? '0.00'} kW`;
+            document.getElementById('battery-soc').textContent = `${data.battery_level_percent ?? '0'}%`;
+
+            // Štatistiky výroby
+            document.getElementById('pv-generation-today').textContent = `${(data.production_kw * 10)?.toFixed(2) ?? '0.00'} kWh`; // Príklad výpočtu
+            document.getElementById('income-today').textContent = "0.00 EUR"; // Doplňte vlastný výpočet
+            document.getElementById('total-generation').textContent = "27,470.30 kWh"; // Doplňte vlastné dáta
+            document.getElementById('total-income').textContent = "0.00 EUR"; // Doplňte vlastné dáta
+
+            // Detailné hodnoty (kW -> W)
+            document.getElementById('pv-w').textContent = (data.production_kw * 1000).toFixed(2);
+            document.getElementById('battery-w').textContent = (data.battery_charge_kw * 1000).toFixed(2);
+            document.getElementById('grid-w').textContent = (data.grid_export_kw * 1000).toFixed(2);
+            document.getElementById('load-w').textContent = (data.consumption_kw * 1000).toFixed(2);
+
+            // Dátum a čas
+            const timestamp = new Date(data.timestamp);
+            document.getElementById('current-date').textContent = timestamp.toLocaleDateString('sk-SK');
+            document.getElementById('created-date').textContent = timestamp.toLocaleDateString('sk-SK');
+            
+            // Statické hodnoty (môžete upraviť)
+            document.getElementById('pv-capacity').textContent = "10.00 kW";
+            document.getElementById('battery-capacity').textContent = "0 kWh";
+            document.getElementById('location').textContent = "Pila 93, 900 BP Pila, Slovakia";
+        })
+        .catch(error => {
+            console.error("Chyba pri načítavaní dát:", error);
+            document.getElementById('pv-power').textContent = "Chyba dát";
+            document.getElementById('battery-soc').textContent = "Chyba";
+        });
 </script>
 </body>
 </html>
