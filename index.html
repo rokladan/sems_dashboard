@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEMS Dashboard</title>
+    <title>GoodWe SEMS Dashboard</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -32,11 +32,6 @@
             margin: 0;
             color: #2c3e50;
         }
-        .header .info {
-            text-align: right;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
         .weather {
             display: flex;
             justify-content: space-between;
@@ -49,65 +44,29 @@
             text-align: center;
             padding: 5px;
         }
-        .weather-day .temp {
-            font-weight: bold;
-        }
         .energy-flow {
             text-align: center;
             margin: 20px 0;
-        }
-        .energy-flow .status {
-            font-size: 18px;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        .energy-flow .power {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
         }
         .stat-box {
             background: #f9f9f9;
             padding: 15px;
             border-radius: 5px;
-            width: 48%;
-        }
-        .stat-box h3 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        .stat-value {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .details {
-            margin-top: 20px;
-        }
-        .details h3 {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+            margin-bottom: 15px;
         }
         .details-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             text-align: center;
+            margin-top: 15px;
         }
-        .details-grid div {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
+        .value {
+            font-weight: bold;
+            font-size: 18px;
         }
-        .details-grid .label {
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-        .details-grid .value {
+        .warning {
+            color: red;
             font-weight: bold;
         }
     </style>
@@ -117,26 +76,23 @@
         <div class="header">
             <h1>Rokla</h1>
             <div class="info">
-                Created: <span id="created-date">09.09.2022</span><br>
-                Classification: <span id="classification">Battery Storage</span><br>
-                PV Capacity: <span id="pv-capacity">10.00 kW</span><br>
-                Battery Capacity: <span id="battery-capacity">0 kWh</span><br>
-                Location: <span id="location">Pila 93, 900 BP Pila, Slovakia</span>
+                <div><strong>SN:</strong> 9010KETU21CW1446</div>
+                <div><strong>Model:</strong> GW10k-ET</div>
             </div>
         </div>
 
         <div class="weather">
             <div class="weather-day">
                 <div class="day">Today</div>
-                <div class="temp">14/24°C</div>
+                <div class="temp">21°C</div>
             </div>
             <div class="weather-day">
                 <div class="day">Saturday</div>
-                <div class="temp">15/28°C</div>
+                <div class="temp">14/24°C</div>
             </div>
             <div class="weather-day">
                 <div class="day">Sunday</div>
-                <div class="temp">18/30°C</div>
+                <div class="temp">15/28°C</div>
             </div>
             <div class="weather-day">
                 <div class="day">Monday</div>
@@ -145,165 +101,135 @@
         </div>
 
         <div class="energy-flow">
-            <div class="status">Working</div>
-            <div class="power" id="pv-power">2.177 kW</div>
+            <div class="status">Working (On-Grid)</div>
+            <div class="power value" id="pv-power">0.00 kW</div>
             <div>PV Power</div>
-            <div id="battery-soc">0%</div>
+            <div class="battery value" id="battery-soc">0%</div>
         </div>
 
-        <div class="stats">
-            <div class="stat-box">
-                <h3>Power Generation & Income</h3>
-                <div class="stat-value" id="pv-generation-today">13.90 kWh</div>
-                <div>PV Generation Today</div>
-                <div class="stat-value" id="income-today">0.00 EUR</div>
-                <div>Income Today</div>
-            </div>
-            <div class="stat-box">
-                <h3>Energy Statistics</h3>
-                <div class="stat-value" id="total-generation">27,470.30 kWh</div>
-                <div>Total Generation</div>
-                <div class="stat-value" id="total-income">0.00 EUR</div>
-                <div>Total Income</div>
-            </div>
+        <div class="stat-box">
+            <h3>Power Generation</h3>
+            <div class="value" id="pv-generation-today">0.00 kWh</div>
+            <div>Today</div>
+            <div class="value" id="total-generation">0.00 kWh</div>
+            <div>Total</div>
         </div>
 
         <div class="details">
-            <h3>Generation: <span id="generation">13.90 kWh</span> | Income: <span id="income">0.00 EUR</span></h3>
             <div class="details-grid">
                 <div>
-                    <div class="label">PV(W)</div>
-                    <div class="value" id="pv-w">2176.83</div>
+                    <div>PV(W)</div>
+                    <div class="value" id="pv-w">0</div>
                 </div>
                 <div>
-                    <div class="label">Battery(W)</div>
+                    <div>Battery(W)</div>
                     <div class="value" id="battery-w">0</div>
                 </div>
                 <div>
-                    <div class="label">Grid (W)</div>
-                    <div class="value" id="grid-w">3364.83</div>
+                    <div>Grid(W)</div>
+                    <div class="value" id="grid-w">0</div>
                 </div>
                 <div>
-                    <div class="label">Load(W)</div>
-                    <div class="value" id="load-w">1188</div>
+                    <div>Load(W)</div>
+                    <div class="value" id="load-w">0</div>
                 </div>
             </div>
             <div style="text-align: center; margin-top: 10px;">
-                <span id="current-date">18.07.2025</span> | SOC: <span id="soc">0%</span>
+                <span id="current-date">Loading...</span> | SOC: <span id="soc">0%</span>
             </div>
         </div>
     </div>
 
-
-<script>
-    // Konfigurácia s predvolenými hodnotami
-    const config = {
-        fallbackValues: {
-            production_kw: 0,
-            consumption_kw: 0,
-            grid_export_kw: 0,
-            battery_charge_kw: 0,
-            battery_level_percent: 0,
-            pvGenerationToday: 0,
-            totalGeneration: 0,
-            incomeToday: 0,
-            totalIncome: 0
-        },
-        calculation: {
-            dailyEstimateFactor: 8 // Pre výpočet dennej výroby z aktuálneho výkonu
-        }
-    };
-
-    // Rozšírená funkcia pre bezpečné získanie hodnôt
-    const getSafeValue = (data, key) => {
-        const value = data[key];
-        const fallback = config.fallbackValues[key] ?? 0;
-        
-        // Ošetrenie pre rôzne formáty čísel
-        if (typeof value === 'string') {
-            const parsed = parseFloat(value.replace(',', '.'));
-            return isNaN(parsed) ? fallback : parsed;
-        }
-        return (typeof value === 'number' && !isNaN(value)) ? value : fallback;
-    };
-
-    // Formátovanie čísel podľa lokalizácie
-    const formatNumber = (value, decimals = 2) => {
-        return value.toLocaleString('sk-SK', {
-            minimumFractionDigits: decimals,
-            maximumFractionDigits: decimals
-        });
-    };
-
-    // Hlavná funkcia pre aktualizáciu UI
-    function updateDashboard(data) {
-        // Načítanie hodnôt s fallbackom
-        const values = {
-            production_kw: getSafeValue(data, 'production_kw'),
-            consumption_kw: getSafeValue(data, 'consumption_kw'),
-            grid_export_kw: getSafeValue(data, 'grid_export_kw'),
-            battery_charge_kw: getSafeValue(data, 'battery_charge_kw'),
-            battery_level_percent: getSafeValue(data, 'battery_level_percent'),
-            pvGenerationToday: getSafeValue(data, 'pvGenerationToday'),
-            totalGeneration: getSafeValue(data, 'totalGeneration'),
-            incomeToday: getSafeValue(data, 'incomeToday'),
-            totalIncome: getSafeValue(data, 'totalIncome')
+    <script>
+        // Konfigurácia
+        const config = {
+            useLocalData: true, // Prepnite na false pre SEMS API
+            updateInterval: 30000 // 30 sekúnd
         };
 
-        // Výpočet odhadu dennej výroby ak chýba
-        if (values.pvGenerationToday === 0 && values.production_kw > 0) {
-            values.pvGenerationToday = values.production_kw * config.calculation.dailyEstimateFactor;
+        // Funkcia pre aktualizáciu UI
+        function updateDashboard(data) {
+            // Bezpečné načítanie hodnôt
+            const getValue = (value, fallback = 0) => {
+                return (value !== undefined && value !== null) ? value : fallback;
+            };
+
+            // Hlavné hodnoty
+            document.getElementById('pv-power').textContent = 
+                `${getValue(data.production_kw, 0).toFixed(2)} kW`;
+            document.getElementById('battery-soc').textContent = 
+                `${getValue(data.battery_level_percent, 0)}%`;
+
+            // Štatistiky
+            document.getElementById('pv-generation-today').textContent = 
+                `${getValue(data.pvGenerationToday, 0).toFixed(2)} kWh`;
+            document.getElementById('total-generation').textContent = 
+                `${getValue(data.totalGeneration, 0).toFixed(2)} kWh`;
+
+            // Detaily (kW -> W)
+            document.getElementById('pv-w').textContent = 
+                Math.round(getValue(data.production_kw, 0) * 1000);
+            document.getElementById('battery-w').textContent = 
+                Math.round(getValue(data.battery_charge_kw, 0) * 1000);
+            document.getElementById('grid-w').textContent = 
+                Math.round(getValue(data.grid_export_kw, 0) * 1000);
+            document.getElementById('load-w').textContent = 
+                Math.round(getValue(data.consumption_kw, 0) * 1000);
+
+            // Dátum
+            const date = new Date(data.timestamp || new Date());
+            document.getElementById('current-date').textContent = 
+                date.toLocaleDateString('sk-SK') + " " + date.toLocaleTimeString('sk-SK');
         }
 
-        // Aktualizácia UI
-        document.getElementById('pv-power').textContent = `${formatNumber(values.production_kw)} kW`;
-        document.getElementById('battery-soc').textContent = `${Math.round(values.battery_level_percent)}%`;
-        
-        document.getElementById('pv-generation-today').textContent = `${formatNumber(values.pvGenerationToday)} kWh`;
-        document.getElementById('total-generation').textContent = `${formatNumber(values.totalGeneration)} kWh`;
-        document.getElementById('income-today').textContent = `${formatNumber(values.incomeToday)} EUR`;
-        document.getElementById('total-income').textContent = `${formatNumber(values.totalIncome)} EUR`;
-
-        document.getElementById('pv-w').textContent = formatNumber(values.production_kw * 1000, 0);
-        document.getElementById('battery-w').textContent = formatNumber(Math.abs(values.battery_charge_kw * 1000), 0);
-        document.getElementById('grid-w').textContent = formatNumber(values.grid_export_kw * 1000, 0);
-        document.getElementById('load-w').textContent = formatNumber(values.consumption_kw * 1000, 0);
-
-        // Spracovanie dátumu
-        try {
-            const date = data.timestamp ? new Date(data.timestamp) : new Date();
-            document.getElementById('current-date').textContent = date.toLocaleDateString('sk-SK');
-        } catch {
-            document.getElementById('current-date').textContent = "Dátum nedostupný";
-        }
-    }
-
-    // Načítanie dát s pokročilým ošetrením chýb
-    const loadData = async () => {
-        try {
-            const response = await fetch('data.json');
-            
-            if (!response.ok) throw new Error(`HTTP chyba: ${response.status}`);
-            if (response.headers.get('content-type')?.includes('application/json') === false) {
-                throw new Error("Neplatný formát odpovede");
+        // Načítanie lokálnych dát
+        async function loadLocalData() {
+            try {
+                const response = await fetch('data.json');
+                const data = await response.json();
+                console.log("Lokálne dáta načítané");
+                return data;
+            } catch (error) {
+                console.error("Chyba pri načítaní data.json:", error);
+                return null;
             }
-            
-            const data = await response.json();
-            console.log("Načítané dáta:", data);
-            
-            if (!data || typeof data !== 'object') throw new Error("Neplatná štruktúra dát");
-            updateDashboard(data);
-            
-        } catch (error) {
-            console.error("Chyba pri načítavaní:", error);
-            updateDashboard(config.fallbackValues);
-            document.querySelector('.dashboard').style.border = "2px solid orange";
-            document.getElementById('pv-power').textContent += " (demo)";
         }
-    };
 
-    // Spustenie načítania
-    document.addEventListener('DOMContentLoaded', loadData);
-</script>
+        // Načítanie dát z SEMS API (pre budúce rozšírenie)
+        async function loadApiData() {
+            console.warn("API nie je v tejto verzii implementované");
+            return null;
+        }
+
+        // Hlavná funkcia
+        async function initDashboard() {
+            const data = config.useLocalData ? 
+                await loadLocalData() : 
+                await loadApiData();
+
+            if (data) {
+                updateDashboard(data);
+            } else {
+                // Fallback na testovacie dáta
+                updateDashboard({
+                    timestamp: new Date().toISOString(),
+                    production_kw: 1.09,
+                    battery_level_percent: 0,
+                    pvGenerationToday: 20.5,
+                    totalGeneration: 27476.9,
+                    battery_charge_kw: 0.3,
+                    grid_export_kw: 0.55,
+                    consumption_kw: 1.85
+                });
+                document.querySelector('.dashboard').style.border = "2px solid orange";
+                document.getElementById('pv-power').classList.add('warning');
+                console.log("Používam testovacie dáta");
+            }
+        }
+
+        // Spustenie a periodická aktualizácia
+        initDashboard();
+        setInterval(initDashboard, config.updateInterval);
+    </script>
 </body>
 </html>
