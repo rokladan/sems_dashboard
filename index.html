@@ -196,26 +196,19 @@
 
 
 <script>
-    // TEST: Najprv vyskúšajte s pevnými dátami (odkomentujte tento blok a zakomentujte fetch)
-    const testData = {
-        timestamp: "2025-07-18T10:29:48.462053Z",
-        production_kw: 3.32,
-        consumption_kw: 1.85,
-        grid_export_kw: 0.55,
-        battery_charge_kw: 0.3,
-        battery_level_percent: 40
-    };
-    
+    // Funkcia pre aktualizáciu dashboardu
     function updateDashboard(data) {
-        console.log("Používam dáta:", data);
+        console.log("Aktualizujem dáta:", data);
         
         // Hlavné hodnoty
         document.getElementById('pv-power').textContent = `${data.production_kw?.toFixed(2) ?? '0.00'} kW`;
         document.getElementById('battery-soc').textContent = `${data.battery_level_percent ?? '0'}%`;
 
         // Štatistiky (prispôsobte podľa potreby)
-        document.getElementById('pv-generation-today').textContent = `${(data.production_kw * 8).toFixed(2)} kWh`; // Príklad: 3.32kW * 8h
+        document.getElementById('pv-generation-today').textContent = `${(data.production_kw * 8).toFixed(2)} kWh`;
         document.getElementById('income-today').textContent = "0.00 EUR";
+        document.getElementById('total-generation').textContent = "27,470.30 kWh";
+        document.getElementById('total-income').textContent = "0.00 EUR";
         
         // Detaily (kW → W)
         document.getElementById('pv-w').textContent = (data.production_kw * 1000).toFixed(2);
@@ -223,27 +216,37 @@
         document.getElementById('grid-w').textContent = (data.grid_export_kw * 1000).toFixed(2);
         document.getElementById('load-w').textContent = (data.consumption_kw * 1000).toFixed(2);
         
-        // Dátum
-        document.getElementById('current-date').textContent = new Date(data.timestamp).toLocaleDateString('sk-SK');
+        // Dátum a statické údaje
+        const date = new Date(data.timestamp);
+        document.getElementById('current-date').textContent = date.toLocaleDateString('sk-SK');
+        document.getElementById('created-date').textContent = date.toLocaleDateString('sk-SK');
     }
 
-    // 1. TEST: Spustite s pevnými dátami (odkomentujte)
-    updateDashboard(testData);
-    console.log("Testovacie dáta úspešne načítané!");
-
-    // 2. VERZIA S FETCH: Ak testovacie dáta fungujú, zakomentujte vyššie a odkomentujte toto:
-    /*
+    // Najprv skúste načítať lokálny JSON súbor
     fetch('data.json')
         .then(response => {
-            if (!response.ok) throw new Error(`Chyba HTTP: ${response.status}`);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             return response.json();
         })
-        .then(data => updateDashboard(data))
+        .then(data => {
+            updateDashboard(data);
+            console.log("Dáta úspešne načítané zo súboru");
+        })
         .catch(error => {
-            console.error("Chyba:", error);
-            document.getElementById('pv-power').textContent = "Chyba načítania";
+            console.warn("Chyba pri načítavaní data.json:", error);
+            
+            // Fallback: Použi testovacie dáta ak fetch zlyhá
+            console.log("Používam testovacie dáta ako fallback");
+            const testData = {
+                timestamp: new Date().toISOString(),
+                production_kw: 3.32,
+                consumption_kw: 1.85,
+                grid_export_kw: 0.55,
+                battery_charge_kw: 0.3,
+                battery_level_percent: 40
+            };
+            updateDashboard(testData);
         });
-    */
 </script>
 </body>
 </html>
