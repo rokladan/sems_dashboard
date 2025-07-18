@@ -19,38 +19,88 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            position: relative;
         }
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            text-align: center;
             margin-bottom: 20px;
         }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+        }
         .weather {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
             margin-bottom: 20px;
-            background: #f9f9f9;
+        }
+        .weather-day {
+            text-align: center;
             padding: 10px;
+            background: #f9f9f9;
             border-radius: 5px;
+        }
+        .weather-day .temp {
+            font-weight: bold;
         }
         .energy-flow {
             text-align: center;
             margin: 20px 0;
         }
-        .value {
-            font-weight: bold;
+        .energy-flow .power {
             font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
         }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .detail-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .detail-value {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .test-mode {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        
+        /* Štýly pre graf */
         .chart-container {
             height: 200px;
             margin: 30px 0;
             position: relative;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 10px;
         }
         .chart {
             display: flex;
@@ -59,7 +109,7 @@
             justify-content: space-around;
         }
         .chart-bar {
-            width: 30px;
+            width: 40px;
             background: #27ae60;
             border-radius: 5px 5px 0 0;
             transition: height 0.5s ease;
@@ -72,47 +122,86 @@
             text-align: center;
             font-size: 12px;
         }
-        .test-mode {
-            color: orange;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="header">
             <h1>Rokla</h1>
-            <div class="info">
-                <div><strong>SN:</strong> 9010KETU21CW1446</div>
-                <div><strong>Model:</strong> GW10k-ET</div>
-            </div>
         </div>
 
         <div class="weather">
-            <div>Today <span class="value">21°C</span></div>
-            <div>Saturday <span class="value">14/24°C</span></div>
-            <div>Sunday <span class="value">15/28°C</span></div>
-            <div>Monday <span class="value">15/25°C</span></div>
+            <div class="weather-day">
+                <div>Today</div>
+                <div class="temp">21°C</div>
+            </div>
+            <div class="weather-day">
+                <div>Saturday</div>
+                <div class="temp">14/24°C</div>
+            </div>
+            <div class="weather-day">
+                <div>Sunday</div>
+                <div class="temp">15/28°C</div>
+            </div>
+            <div class="weather-day">
+                <div>Monday</div>
+                <div class="temp">15/25°C</div>
+            </div>
         </div>
 
         <div class="energy-flow">
             <div>Working (On-Grid)</div>
-            <div class="value" id="pv-power">1,09 kW</div>
+            <div class="power">1,09 kW</div>
             <div>PV Power</div>
-            <div id="battery-soc">0%</div>
+            <div>0%</div>
         </div>
 
         <div class="chart-container">
-            <h3>Denná produkcia (kWh)</h3>
+            <h3 style="text-align: center;">Denná produkcia (kWh)</h3>
             <div class="chart" id="production-chart">
                 <!-- Graf sa vygeneruje JavaScriptom -->
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 10px;">
+        <div class="stats">
+            <div class="stat-box">
+                <h3>Power Generation</h3>
+                <div class="stat-value">13,9 kWh</div>
+                <div>Today</div>
+                <div class="stat-value">27 470,3 kWh</div>
+                <div>Total</div>
+            </div>
+            <div class="stat-box">
+                <h3>System Info</h3>
+                <div>SN: 9010KETU21CW1446</div>
+                <div>Model: GW10k-ET</div>
+                <div>Status: Online</div>
+            </div>
+        </div>
+
+        <div class="details">
+            <div class="detail-item">
+                <div>PV(W)</div>
+                <div class="detail-value">1 090</div>
+            </div>
+            <div class="detail-item">
+                <div>Battery(W)</div>
+                <div class="detail-value">0</div>
+            </div>
+            <div class="detail-item">
+                <div>Grid(W)</div>
+                <div class="detail-value">0</div>
+            </div>
+            <div class="detail-item">
+                <div>Load(W)</div>
+                <div class="detail-value">1 850</div>
+            </div>
+        </div>
+
+        <div class="footer">
             <span id="current-date">18.7.2025</span> | 
             <span class="test-mode">TEST MODE</span> | 
-            SOC: <span id="soc">0%</span>
+            SOC: <span>0%</span>
         </div>
     </div>
 
@@ -137,7 +226,6 @@
                 const bar = document.createElement('div');
                 bar.className = 'chart-bar';
                 bar.style.height = `${(value / maxValue) * 100}%`;
-                bar.style.width = '40px';
                 bar.title = `${value.toFixed(1)} kWh`;
                 
                 const label = document.createElement('div');
