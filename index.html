@@ -1,229 +1,230 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FV Výroba a Spotreba Widget</title>
-  <style>
-    body {
-      background: #141a1f;
-      color: #e6efe6;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    .dashboard {
-      width: 99vw;
-      min-height: 98vh;
-      display: flex;
-      flex-direction: column;
-      gap: 2vh;
-      padding: 2vh 2vw;
-    }
-    .upper-section, .lower-section {
-      display: flex;
-      gap: 2vw;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .card {
-      background: rgba(30, 50, 60, 0.91);
-      border-radius: 12px;
-      padding: 1.5vh 2vw;
-      min-width: 220px;
-      box-shadow: 0 0 10px #1a2a32c7;
-    }
-    /* Tok energie */
-    .energy-flow {
-      flex: 2;
-      position: relative;
-      background: #232e2e99;
-      border-radius: 14px;
-      padding: 2vw;
-      min-height: 260px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-    .flow-items {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-    }
-    .flow-icon {
-      font-size: 2em;
-      margin: 0 1vw;
-      text-align: center;
-    }
-    /* Kruhové grafy */
-    .pie-charts {
-      display: flex;
-      gap: 3vw;
-      align-items: center;
-      justify-content: center;
-    }
-    .pie {
-      width: 110px;
-      height: 110px;
-      position: relative;
-    }
-    .pie-title {
-      text-align: center;
-      font-weight: bold;
-      margin-top: 0.5em;
-    }
-    /* Ostatné */
-    .stat-bar {
-      height: 60px;
-      background: #214452;
-      border-radius: 7px;
-      margin-bottom: 6px;
-      padding: 6px;
-    }
-    .weather, .ecology, .inverter {
-      min-width: 160px;
-    }
-    .value-big {
-      font-size: 2em;
-      font-weight: bold;
-      color: #4aff69;
-    }
-    .label {
-      font-size: 0.95em;
-      color: #b9ebd9;
-      margin-bottom: 2px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEMS Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .header .info {
+            text-align: right;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .weather {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .weather-day {
+            text-align: center;
+            padding: 5px;
+        }
+        .weather-day .temp {
+            font-weight: bold;
+        }
+        .energy-flow {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .energy-flow .status {
+            font-size: 18px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .energy-flow .power {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            width: 48%;
+        }
+        .stat-box h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .details {
+            margin-top: 20px;
+        }
+        .details h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+        .details-grid div {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .details-grid .label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .details-grid .value {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- Horná sekcia -->
-    <div class="upper-section">
-      <!-- Štatistiky výroby -->
-      <div class="card stat-bar">
-        <div class="label">Výroba spolu</div>
-        <div class="value-big" id="totalGen">27,469.6 MWh</div>
-        <div class="label">Príjem spolu</div>
-        <div class="value-big" id="totalInc">0 EUR</div>
-      </div>
-      <!-- Štítok elektrárne -->
-      <div class="card">
-        <div class="label">Stanica: RoK1a</div>
-        <div>Kapacita: <span id="capacity">10 kW</span></div>
-        <div>Adresa: Pila, Slovensko</div>
-        <div>Spustenie: 09.09.2022</div>
-      </div>
-      <!-- Počasie -->
-      <div class="card weather">
-        <div class="label">Počasie teraz</div>
-        <div id="weather">19°C, premenlivé</div>
-        <div>
-          <span>15-21°C</span><br>
-          <span>14-24°C zajtra</span>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Rokla</h1>
+            <div class="info">
+                Created: <span id="created-date">09.09.2022</span><br>
+                Classification: <span id="classification">Battery Storage</span><br>
+                PV Capacity: <span id="pv-capacity">10.00 kW</span><br>
+                Battery Capacity: <span id="battery-capacity">0 kWh</span><br>
+                Location: <span id="location">Pila 93, 900 BP Pila, Slovakia</span>
+            </div>
         </div>
-      </div>
-      <!-- Ekologický prínos -->
-      <div class="card ecology">
-        <div class="label">CO₂ ušetrené</div>
-        <div id="co2">0 kg</div>
-        <div class="label">Stromy</div>
-        <div id="trees">0</div>
-      </div>
-    </div>
 
-    <!-- Schéma toku energie -->
-    <div class="energy-flow card">
-      <div class="flow-items">
-        <span class="flow-icon">🔆<br><span id="pvValue">4893.11 W</span></span>
-        <span style="flex:1; text-align:center;">
-          <span class="flow-icon">🔋<br><span id="batValue">0%</span></span>
-        </span>
-        <span class="flow-icon">🏠<br><span id="homeValue">3546.11 W</span></span>
-        <span class="flow-icon">⚡<br><span id="gridValue">1347 W</span></span>
-      </div>
-    </div>
-
-    <!-- Dolná sekcia: Grafy a výkon -->
-    <div class="lower-section">
-      <!-- Štatistika graf -->
-      <div class="card" style="min-width:200px;">
-        <div class="label">Výroba - 12 mesiacov</div>
-        <canvas id="barChart" width="210" height="110"></canvas>
-      </div>
-      <!-- Kruhové grafy -->
-      <div class="card">
-        <div class="pie-charts">
-          <div>
-            <canvas id="pieInHouse" class="pie"></canvas>
-            <div class="pie-title">Vlastná spotreba</div>
-          </div>
-          <div>
-            <canvas id="pieGrid" class="pie"></canvas>
-            <div class="pie-title">Podiel do siete</div>
-          </div>
+        <div class="weather">
+            <div class="weather-day">
+                <div class="day">Today</div>
+                <div class="temp">14/24°C</div>
+            </div>
+            <div class="weather-day">
+                <div class="day">Saturday</div>
+                <div class="temp">15/28°C</div>
+            </div>
+            <div class="weather-day">
+                <div class="day">Sunday</div>
+                <div class="temp">18/30°C</div>
+            </div>
+            <div class="weather-day">
+                <div class="day">Monday</div>
+                <div class="temp">15/25°C</div>
+            </div>
         </div>
-      </div>
-      <!-- Menic/batéria -->
-      <div class="card inverter">
-        <div class="label">Menič:</div>
-        <div id="inverterStatus">Pracuje</div>
-      </div>
+
+        <div class="energy-flow">
+            <div class="status">Working</div>
+            <div class="power" id="pv-power">2.177 kW</div>
+            <div>PV Power</div>
+            <div id="battery-soc">0%</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <h3>Power Generation & Income</h3>
+                <div class="stat-value" id="pv-generation-today">13.90 kWh</div>
+                <div>PV Generation Today</div>
+                <div class="stat-value" id="income-today">0.00 EUR</div>
+                <div>Income Today</div>
+            </div>
+            <div class="stat-box">
+                <h3>Energy Statistics</h3>
+                <div class="stat-value" id="total-generation">27,470.30 kWh</div>
+                <div>Total Generation</div>
+                <div class="stat-value" id="total-income">0.00 EUR</div>
+                <div>Total Income</div>
+            </div>
+        </div>
+
+        <div class="details">
+            <h3>Generation: <span id="generation">13.90 kWh</span> | Income: <span id="income">0.00 EUR</span></h3>
+            <div class="details-grid">
+                <div>
+                    <div class="label">PV(W)</div>
+                    <div class="value" id="pv-w">2176.83</div>
+                </div>
+                <div>
+                    <div class="label">Battery(W)</div>
+                    <div class="value" id="battery-w">0</div>
+                </div>
+                <div>
+                    <div class="label">Grid (W)</div>
+                    <div class="value" id="grid-w">3364.83</div>
+                </div>
+                <div>
+                    <div class="label">Load(W)</div>
+                    <div class="value" id="load-w">1188</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 10px;">
+                <span id="current-date">18.07.2025</span> | SOC: <span id="soc">0%</span>
+            </div>
+        </div>
     </div>
-  </div>
-  <!-- JS pre dynamické dáta a grafy -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    // Načítanie dát z JSONu
-    // let data = ... // načítaj vlastný JSON tu
 
-    // Príklad demo dát:
-    let barData = [520, 610, 410, 700, 770, 670, 850, 800, 1030, 950, 1200, 1280];
-    let barLabels = ['1','2','3','4','5','6','7','8','9','10','11','12'];
-    let pie1 = [4.15, 10.25]; // in-house, feed-in
-    let pie2 = [4.15, 1.78]; // PV+BAT, grid
-
-    // Bar chart
-    new Chart(document.getElementById('barChart'), {
-      type: 'bar',
-      data: {
-        labels: barLabels,
-        datasets: [{
-          label: 'Výroba (kWh)',
-          data: barData,
-          backgroundColor: '#4aff69bb'
-        }]
-      },
-      options: { plugins:{legend:{display:false}}, scales: {y:{beginAtZero:true}} }
-    });
-
-    // Pie chart 1: vlastná spotreba vs feed-in
-    new Chart(document.getElementById('pieInHouse'), {
-      type: 'doughnut',
-      data: {
-        labels: ['Vlastná', 'Do siete'],
-        datasets: [{
-          data: pie1,
-          backgroundColor: ['#39e09b','#274683']
-        }]
-      },
-      options: { plugins:{legend:{display:false}}, cutout: '65%' }
-    });
-
-    // Pie chart 2: PV+BAT vs grid
-    new Chart(document.getElementById('pieGrid'), {
-      type: 'doughnut',
-      data: {
-        labels: ['PV+BAT', 'Zo siete'],
-        datasets: [{
-          data: pie2,
-          backgroundColor: ['#19bfff','#e0e14a']
-        }]
-      },
-      options: { plugins:{legend:{display:false}}, cutout: '65%' }
-    });
-  </script>
+    <script>
+        // Nahrať JSON dáta (nahraďte cestou k vášmu súboru)
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                // Aktualizácia UI s dátami z JSON
+                document.getElementById('created-date').textContent = data.createdDate;
+                document.getElementById('pv-capacity').textContent = data.pvCapacity + ' kW';
+                document.getElementById('battery-capacity').textContent = data.batteryCapacity + ' kWh';
+                document.getElementById('location').textContent = data.location;
+                
+                document.getElementById('pv-power').textContent = data.pvPower + ' kW';
+                document.getElementById('battery-soc').textContent = data.batterySOC + '%';
+                
+                document.getElementById('pv-generation-today').textContent = data.pvGenerationToday + ' kWh';
+                document.getElementById('income-today').textContent = data.incomeToday + ' EUR';
+                document.getElementById('total-generation').textContent = data.totalGeneration + ' kWh';
+                document.getElementById('total-income').textContent = data.totalIncome + ' EUR';
+                
+                document.getElementById('generation').textContent = data.generation + ' kWh';
+                document.getElementById('income').textContent = data.income + ' EUR';
+                
+                document.getElementById('pv-w').textContent = data.pvW;
+                document.getElementById('battery-w').textContent = data.batteryW;
+                document.getElementById('grid-w').textContent = data.gridW;
+                document.getElementById('load-w').textContent = data.loadW;
+                
+                document.getElementById('current-date').textContent = data.currentDate;
+                document.getElementById('soc').textContent = data.soc + '%';
+            })
+            .catch(error => console.error('Error loading JSON:', error));
+    </script>
 </body>
 </html>
