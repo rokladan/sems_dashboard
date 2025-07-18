@@ -1,10 +1,17 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoodWe SEMS Dashboard</title>
+    <!-- Font Awesome pre ikony -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #27ae60;
+            --warning: #e74c3c;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
@@ -16,172 +23,221 @@
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary), #3498db);
         }
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
             margin-bottom: 20px;
         }
         .header h1 {
             margin: 0;
-            color: #2c3e50;
+            color: var(--primary);
+            font-size: 28px;
+        }
+        .nav {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-item {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .nav-item:hover {
+            background: #f0f0f0;
+        }
+        .nav-item i {
+            margin-right: 5px;
         }
         .weather {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .weather-day {
-            text-align: center;
-            padding: 5px;
-        }
-        .energy-flow {
             text-align: center;
             margin: 20px 0;
+            font-size: 24px;
         }
-        .stat-box {
+        .main-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .stat-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        .stat-card .label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .chart-container {
+            height: 200px;
+            margin: 30px 0;
+            position: relative;
+        }
+        .chart {
+            width: 100%;
+            height: 100%;
+            background: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            background: var(--secondary);
+            animation: grow 1.5s ease-in-out;
+            transform-origin: bottom;
+        }
+        @keyframes grow {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+        .details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .detail-item {
             background: #f9f9f9;
             padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            border-radius: 10px;
             text-align: center;
-            margin-top: 15px;
         }
-        .value {
+        .detail-item .value {
+            font-size: 24px;
             font-weight: bold;
-            font-size: 18px;
+            margin: 5px 0;
+        }
+        .detail-item .label {
+            color: #7f8c8d;
+            font-size: 12px;
         }
         .warning {
-            color: red;
-            font-weight: bold;
+            color: var(--warning);
+        }
+        .icon {
+            font-size: 20px;
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="header">
-            <h1>Rokla</h1>
-            <div class="info">
-                <div><strong>SN:</strong> 9010KETU21CW1446</div>
-                <div><strong>Model:</strong> GW10k-ET</div>
+            <h1><i class="fas fa-solar-panel icon"></i> Rokla</h1>
+            <div class="nav">
+                <div class="nav-item"><i class="fas fa-tv"></i> Monitorování</div>
+                <div class="nav-item"><i class="fas fa-bell"></i> Alarmy</div>
             </div>
         </div>
 
         <div class="weather">
-            <div class="weather-day">
-                <div class="day">Today</div>
-                <div class="temp">21°C</div>
+            <i class="fas fa-cloud-sun"></i> 20 °C | <strong>10,00 kWp</strong>
+        </div>
+
+        <div class="main-stats">
+            <div class="stat-card">
+                <div class="label">Aktuální výkon</div>
+                <div class="value">1,01 kW</div>
+                <div class="label"><i class="fas fa-bolt"></i> Fotovoltaika</div>
             </div>
-            <div class="weather-day">
-                <div class="day">Saturday</div>
-                <div class="temp">14/24°C</div>
-            </div>
-            <div class="weather-day">
-                <div class="day">Sunday</div>
-                <div class="temp">15/28°C</div>
-            </div>
-            <div class="weather-day">
-                <div class="day">Monday</div>
-                <div class="temp">15/25°C</div>
+            <div class="stat-card">
+                <div class="label">Spotřeba</div>
+                <div class="value">210 W</div>
+                <div class="label"><i class="fas fa-home"></i> Dům</div>
             </div>
         </div>
 
-        <div class="energy-flow">
-            <div class="status">Working (On-Grid)</div>
-            <div class="power value" id="pv-power">0.00 kW</div>
-            <div>PV Power</div>
-            <div class="battery value" id="battery-soc">0%</div>
-        </div>
-
-        <div class="stat-box">
-            <h3>Power Generation</h3>
-            <div class="value" id="pv-generation-today">0.00 kWh</div>
-            <div>Today</div>
-            <div class="value" id="total-generation">0.00 kWh</div>
-            <div>Total</div>
+        <div class="chart-container">
+            <h3><i class="fas fa-chart-line icon"></i> Denní produkce (kWh)</h3>
+            <div class="chart" id="production-chart">
+                <!-- Grafy sa vygenerujú cez JavaScript -->
+            </div>
         </div>
 
         <div class="details">
-            <div class="details-grid">
-                <div>
-                    <div>PV(W)</div>
-                    <div class="value" id="pv-w">0</div>
-                </div>
-                <div>
-                    <div>Battery(W)</div>
-                    <div class="value" id="battery-w">0</div>
-                </div>
-                <div>
-                    <div>Grid(W)</div>
-                    <div class="value" id="grid-w">0</div>
-                </div>
-                <div>
-                    <div>Load(W)</div>
-                    <div class="value" id="load-w">0</div>
-                </div>
+            <div class="detail-item">
+                <div class="label">Baterie</div>
+                <div class="value">0%</div>
+                <div class="label"><i class="fas fa-battery-quarter warning"></i> SOC</div>
             </div>
-            <div style="text-align: center; margin-top: 10px;">
-                <span id="current-date">Loading...</span> | SOC: <span id="soc">0%</span>
+            <div class="detail-item">
+                <div class="label">Výkon</div>
+                <div class="value">798 W</div>
+                <div class="label"><i class="fas fa-plug"></i> Sítě</div>
+            </div>
+            <div class="detail-item">
+                <div class="label">Stav</div>
+                <div class="value">Online</div>
+                <div class="label"><i class="fas fa-circle" style="color: #27ae60;"></i> GoodWe</div>
             </div>
         </div>
     </div>
 
     <script>
-    // TESTOVACIE DÁTA - nahradia sa API dátami v budúcnosti
-    const testData = {
-        timestamp: "2025-07-18T14:30:00Z",
-        production_kw: 1.09,        // zodpovedá "0,00 kW" z obrázku (prepíše sa)
-        battery_level_percent: 0,    // "0%" z obrázku
-        pvGenerationToday: 13.9,     // "13,90 kWh" z obrázku
-        totalGeneration: 27470.3,    // "27 470,30 kWh"
-        grid_export_kw: 0.55,
-        consumption_kw: 1.85
-    };
+        // Testovacie dáta pre graf
+        const testData = {
+            production: [0, 0.5, 1.2, 2.1, 2.8, 3.5, 2.9, 1.8, 0.9, 0.2],
+            timestamps: ["6:00", "8:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00", "24:00"]
+        };
 
-    function updateDashboard(data) {
-        // Formátovanie čísel podľa SK konvencie
-        const format = (num) => num.toLocaleString('sk-SK', {maximumFractionDigits: 2});
+        // Vytvorenie grafu
+        function createChart() {
+            const chart = document.getElementById('production-chart');
+            const maxValue = Math.max(...testData.production);
+            
+            testData.production.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = `${(value / maxValue) * 100}%`;
+                bar.style.left = `${index * (100 / testData.production.length)}%`;
+                bar.style.width = `${80 / testData.production.length}%`;
+                bar.setAttribute('title', `${value.toFixed(1)} kWh (${testData.timestamps[index]})`);
+                chart.appendChild(bar);
+            });
+        }
 
-        document.getElementById('pv-power').textContent = `${format(data.production_kw)} kW`;
-        document.getElementById('battery-soc').textContent = `${data.battery_level_percent}%`;
-        document.getElementById('pv-generation-today').textContent = `${format(data.pvGenerationToday)} kWh`;
-        document.getElementById('total-generation').textContent = `${format(data.totalGeneration)} kWh`;
-        
-        // Detaily v wattoch
-        document.getElementById('pv-w').textContent = format(data.production_kw * 1000);
-        document.getElementById('load-w').textContent = format(data.consumption_kw * 1000);
-        
-        // Dátum
-        document.getElementById('current-date').textContent = 
-            new Date(data.timestamp).toLocaleDateString('sk-SK');
-    }
-
-    // Simulácia načítania dát
-    function loadData() {
-        console.log("Používam testovacie dáta");
-        updateDashboard(testData);
-        
-        // Vizualizácia testovacieho režimu
-        document.querySelector('.dashboard').style.border = "2px dashed orange";
-        document.getElementById('current-date').textContent += " (TEST MODE)";
-    }
-
-    // Spustenie po načítaní stránky
-    window.addEventListener('DOMContentLoaded', loadData);
-</script>
+        // Spustenie po načítaní stránky
+        window.addEventListener('DOMContentLoaded', () => {
+            createChart();
+            
+            // Simulácia aktualizácie dát každých 5 sekúnd (len pre demo)
+            setInterval(() => {
+                const randomChange = Math.random() * 0.2 - 0.1;
+                const currentValue = parseFloat(document.querySelector('.stat-card .value').textContent);
+                document.querySelector('.stat-card .value').textContent = (currentValue + randomChange).toFixed(2) + ' kW';
+            }, 5000);
+        });
+    </script>
 </body>
 </html>
