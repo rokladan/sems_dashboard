@@ -197,32 +197,39 @@
 
 <script>
     function updateDashboard(data) {
-        // Pomocná funkcia pre bezpečnú konverziu
-        const safeNumber = (value, defaultValue = 0) => {
-            const num = parseFloat(value);
-            return isNaN(num) ? defaultValue : num;
+        // Bezpečné získanie hodnôt s fallbackom
+        const getValue = (obj, key, fallback = 0) => {
+            const value = obj[key];
+            return (value !== undefined && value !== null && !isNaN(value)) ? value : fallback;
         };
 
         // Hlavné hodnoty
         document.getElementById('pv-power').textContent = 
-            `${safeNumber(data.production_kw).toFixed(2)} kW`;
+            `${getValue(data, 'production_kw').toFixed(2)} kW`;
         document.getElementById('battery-soc').textContent = 
-            `${safeNumber(data.battery_level_percent)}%`;
+            `${getValue(data, 'battery_level_percent')}%`;
 
-        // Štatistiky výroby (príkladový výpočet)
+        // Štatistiky výroby
         document.getElementById('pv-generation-today').textContent = 
-            `${(safeNumber(data.production_kw) * 8).toFixed(2)} kWh`;
-        document.getElementById('income-today').textContent = "0.00 EUR";
+            `${getValue(data, 'pvGenerationToday', getValue(data, 'production_kw') * 8).toFixed(2)} kWh`;
+        document.getElementById('total-generation').textContent = 
+            `${getValue(data, 'totalGeneration', 27470.30).toLocaleString('sk-SK')} kWh`;
         
+        // Finančné údaje (fallback na 0)
+        document.getElementById('income-today').textContent = 
+            `${getValue(data, 'incomeToday').toFixed(2)} EUR`;
+        document.getElementById('total-income').textContent = 
+            `${getValue(data, 'totalIncome').toFixed(2)} EUR`;
+
         // Detaily (kW → W)
         document.getElementById('pv-w').textContent = 
-            safeNumber(data.production_kw * 1000).toFixed(2);
+            getValue(data, 'production_kw') * 1000;
         document.getElementById('battery-w').textContent = 
-            Math.abs(safeNumber(data.battery_charge_kw * 1000)).toFixed(2);
+            Math.abs(getValue(data, 'battery_charge_kw') * 1000);
         document.getElementById('grid-w').textContent = 
-            safeNumber(data.grid_export_kw * 1000).toFixed(2);
+            getValue(data, 'grid_export_kw') * 1000;
         document.getElementById('load-w').textContent = 
-            safeNumber(data.consumption_kw * 1000).toFixed(2);
+            getValue(data, 'consumption_kw') * 1000;
 
         // Dátum a čas
         try {
@@ -254,9 +261,13 @@
                 consumption_kw: 1.85,
                 grid_export_kw: 0.55,
                 battery_charge_kw: 0.3,
-                battery_level_percent: 40
+                battery_level_percent: 40,
+                pvGenerationToday: 13.90,
+                totalGeneration: 27470.30,
+                incomeToday: 0.00,
+                totalIncome: 0.00
             });
-            document.getElementById('pv-power').style.color = "red";
+            document.querySelector('.dashboard').style.border = "2px solid red";
         });
 </script>
 </body>
