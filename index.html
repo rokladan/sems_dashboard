@@ -141,95 +141,47 @@
     </div>
 
     <script>
-        // Konfigurácia
-        const config = {
-            useLocalData: true, // Prepnite na false pre SEMS API
-            updateInterval: 30000 // 30 sekúnd
-        };
+    // TESTOVACIE DÁTA - nahradia sa API dátami v budúcnosti
+    const testData = {
+        timestamp: "2025-07-18T14:30:00Z",
+        production_kw: 1.09,        // zodpovedá "0,00 kW" z obrázku (prepíše sa)
+        battery_level_percent: 0,    // "0%" z obrázku
+        pvGenerationToday: 13.9,     // "13,90 kWh" z obrázku
+        totalGeneration: 27470.3,    // "27 470,30 kWh"
+        grid_export_kw: 0.55,
+        consumption_kw: 1.85
+    };
 
-        // Funkcia pre aktualizáciu UI
-        function updateDashboard(data) {
-            // Bezpečné načítanie hodnôt
-            const getValue = (value, fallback = 0) => {
-                return (value !== undefined && value !== null) ? value : fallback;
-            };
+    function updateDashboard(data) {
+        // Formátovanie čísel podľa SK konvencie
+        const format = (num) => num.toLocaleString('sk-SK', {maximumFractionDigits: 2});
 
-            // Hlavné hodnoty
-            document.getElementById('pv-power').textContent = 
-                `${getValue(data.production_kw, 0).toFixed(2)} kW`;
-            document.getElementById('battery-soc').textContent = 
-                `${getValue(data.battery_level_percent, 0)}%`;
+        document.getElementById('pv-power').textContent = `${format(data.production_kw)} kW`;
+        document.getElementById('battery-soc').textContent = `${data.battery_level_percent}%`;
+        document.getElementById('pv-generation-today').textContent = `${format(data.pvGenerationToday)} kWh`;
+        document.getElementById('total-generation').textContent = `${format(data.totalGeneration)} kWh`;
+        
+        // Detaily v wattoch
+        document.getElementById('pv-w').textContent = format(data.production_kw * 1000);
+        document.getElementById('load-w').textContent = format(data.consumption_kw * 1000);
+        
+        // Dátum
+        document.getElementById('current-date').textContent = 
+            new Date(data.timestamp).toLocaleDateString('sk-SK');
+    }
 
-            // Štatistiky
-            document.getElementById('pv-generation-today').textContent = 
-                `${getValue(data.pvGenerationToday, 0).toFixed(2)} kWh`;
-            document.getElementById('total-generation').textContent = 
-                `${getValue(data.totalGeneration, 0).toFixed(2)} kWh`;
+    // Simulácia načítania dát
+    function loadData() {
+        console.log("Používam testovacie dáta");
+        updateDashboard(testData);
+        
+        // Vizualizácia testovacieho režimu
+        document.querySelector('.dashboard').style.border = "2px dashed orange";
+        document.getElementById('current-date').textContent += " (TEST MODE)";
+    }
 
-            // Detaily (kW -> W)
-            document.getElementById('pv-w').textContent = 
-                Math.round(getValue(data.production_kw, 0) * 1000);
-            document.getElementById('battery-w').textContent = 
-                Math.round(getValue(data.battery_charge_kw, 0) * 1000);
-            document.getElementById('grid-w').textContent = 
-                Math.round(getValue(data.grid_export_kw, 0) * 1000);
-            document.getElementById('load-w').textContent = 
-                Math.round(getValue(data.consumption_kw, 0) * 1000);
-
-            // Dátum
-            const date = new Date(data.timestamp || new Date());
-            document.getElementById('current-date').textContent = 
-                date.toLocaleDateString('sk-SK') + " " + date.toLocaleTimeString('sk-SK');
-        }
-
-        // Načítanie lokálnych dát
-        async function loadLocalData() {
-            try {
-                const response = await fetch('data.json');
-                const data = await response.json();
-                console.log("Lokálne dáta načítané");
-                return data;
-            } catch (error) {
-                console.error("Chyba pri načítaní data.json:", error);
-                return null;
-            }
-        }
-
-        // Načítanie dát z SEMS API (pre budúce rozšírenie)
-        async function loadApiData() {
-            console.warn("API nie je v tejto verzii implementované");
-            return null;
-        }
-
-        // Hlavná funkcia
-        async function initDashboard() {
-            const data = config.useLocalData ? 
-                await loadLocalData() : 
-                await loadApiData();
-
-            if (data) {
-                updateDashboard(data);
-            } else {
-                // Fallback na testovacie dáta
-                updateDashboard({
-                    timestamp: new Date().toISOString(),
-                    production_kw: 1.09,
-                    battery_level_percent: 0,
-                    pvGenerationToday: 20.5,
-                    totalGeneration: 27476.9,
-                    battery_charge_kw: 0.3,
-                    grid_export_kw: 0.55,
-                    consumption_kw: 1.85
-                });
-                document.querySelector('.dashboard').style.border = "2px solid orange";
-                document.getElementById('pv-power').classList.add('warning');
-                console.log("Používam testovacie dáta");
-            }
-        }
-
-        // Spustenie a periodická aktualizácia
-        initDashboard();
-        setInterval(initDashboard, config.updateInterval);
-    </script>
+    // Spustenie po načítaní stránky
+    window.addEventListener('DOMContentLoaded', loadData);
+</script>
 </body>
 </html>
