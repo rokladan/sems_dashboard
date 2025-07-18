@@ -1,9 +1,20 @@
- {
-    timestamp: "2025-07-18T10:29:48.462053Z",
-    production_kw: 3.32,
-    consumption_kw: 1.85,
-    grid_export_kw: 0.55,
-    battery_charge_kw: 0.3,
-    battery_level_percent: 40
-};
-
+{
+    "createdDate": "09.09.2022",
+    "pvCapacity": 10.00,
+    "batteryCapacity": 0,
+    "location": "Pila 93, 900 BP Pila, Slovakia",
+    "pvPower": 3.32,
+    "batterySOC": 40,
+    "pvGenerationToday": 13.90,
+    "incomeToday": 0.00,
+    "totalGeneration": 27470.30,
+    "totalIncome": 0.00,
+    "generation": 13.90,
+    "income": 0.00,
+    "pvW": 3320,
+    "batteryW": 300,
+    "gridW": 550,
+    "loadW": 1850,
+    "currentDate": "18.07.2025",
+    "soc": 40
+}
