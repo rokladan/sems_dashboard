@@ -194,43 +194,38 @@
         </div>
     </div>
 
-    <script>
-        // Nahrať JSON dáta (nahraďte cestou k vášmu súboru)
-        fetch('data.json')
-    .then(response => response.json())
-    .then(data => {
-        // Tu spracujte dáta a aktualizujte HTML
-        console.log("Dáta načítané:", data);
-        document.getElementById('pv-power').textContent = data.pvPower + ' kW';
-        // ... ostatné prvky
-    })
-    .catch(error => console.error('Chyba pri načítavaní JSON:', error));
-                // Aktualizácia UI s dátami z JSON
-                document.getElementById('created-date').textContent = data.createdDate;
-                document.getElementById('pv-capacity').textContent = data.pvCapacity + ' kW';
-                document.getElementById('battery-capacity').textContent = data.batteryCapacity + ' kWh';
-                document.getElementById('location').textContent = data.location;
-                
-                document.getElementById('pv-power').textContent = data.pvPower + ' kW';
-                document.getElementById('battery-soc').textContent = data.batterySOC + '%';
-                
-                document.getElementById('pv-generation-today').textContent = data.pvGenerationToday + ' kWh';
-                document.getElementById('income-today').textContent = data.incomeToday + ' EUR';
-                document.getElementById('total-generation').textContent = data.totalGeneration + ' kWh';
-                document.getElementById('total-income').textContent = data.totalIncome + ' EUR';
-                
-                document.getElementById('generation').textContent = data.generation + ' kWh';
-                document.getElementById('income').textContent = data.income + ' EUR';
-                
-                document.getElementById('pv-w').textContent = data.pvW;
-                document.getElementById('battery-w').textContent = data.batteryW;
-                document.getElementById('grid-w').textContent = data.gridW;
-                document.getElementById('load-w').textContent = data.loadW;
-                
-                document.getElementById('current-date').textContent = data.currentDate;
-                document.getElementById('soc').textContent = data.soc + '%';
-            })
-            .catch(error => console.error('Error loading JSON:', error));
-    </script>
+<script>
+    fetch('data.json')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Dáta načítané:", data);
+            
+            // Aktualizácia UI s dátami z JSON
+            document.getElementById('created-date').textContent = data.createdDate;
+            document.getElementById('pv-capacity').textContent = data.pvCapacity + ' kW';
+            document.getElementById('battery-capacity').textContent = data.batteryCapacity + ' kWh';
+            document.getElementById('location').textContent = data.location;
+            
+            document.getElementById('pv-power').textContent = data.pvPower + ' kW';
+            document.getElementById('battery-soc').textContent = data.batterySOC + '%';
+            
+            document.getElementById('pv-generation-today').textContent = data.pvGenerationToday + ' kWh';
+            document.getElementById('income-today').textContent = data.incomeToday + ' EUR';
+            document.getElementById('total-generation').textContent = data.totalGeneration + ' kWh';
+            document.getElementById('total-income').textContent = data.totalIncome + ' EUR';
+            
+            document.getElementById('generation').textContent = data.generation + ' kWh';
+            document.getElementById('income').textContent = data.income + ' EUR';
+            
+            document.getElementById('pv-w').textContent = data.pvW;
+            document.getElementById('battery-w').textContent = data.batteryW;
+            document.getElementById('grid-w').textContent = data.gridW;
+            document.getElementById('load-w').textContent = data.loadW;
+            
+            document.getElementById('current-date').textContent = data.currentDate;
+            document.getElementById('soc').textContent = data.soc + '%';
+        })
+        .catch(error => console.error('Chyba pri načítavaní JSON:', error));
+</script>
 </body>
 </html>
