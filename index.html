@@ -196,79 +196,114 @@
 
 
 <script>
+    // Konfigurácia s predvolenými hodnotami
+    const config = {
+        fallbackValues: {
+            production_kw: 0,
+            consumption_kw: 0,
+            grid_export_kw: 0,
+            battery_charge_kw: 0,
+            battery_level_percent: 0,
+            pvGenerationToday: 0,
+            totalGeneration: 0,
+            incomeToday: 0,
+            totalIncome: 0
+        },
+        calculation: {
+            dailyEstimateFactor: 8 // Pre výpočet dennej výroby z aktuálneho výkonu
+        }
+    };
+
+    // Rozšírená funkcia pre bezpečné získanie hodnôt
+    const getSafeValue = (data, key) => {
+        const value = data[key];
+        const fallback = config.fallbackValues[key] ?? 0;
+        
+        // Ošetrenie pre rôzne formáty čísel
+        if (typeof value === 'string') {
+            const parsed = parseFloat(value.replace(',', '.'));
+            return isNaN(parsed) ? fallback : parsed;
+        }
+        return (typeof value === 'number' && !isNaN(value)) ? value : fallback;
+    };
+
+    // Formátovanie čísel podľa lokalizácie
+    const formatNumber = (value, decimals = 2) => {
+        return value.toLocaleString('sk-SK', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    };
+
+    // Hlavná funkcia pre aktualizáciu UI
     function updateDashboard(data) {
-        // Bezpečné získanie hodnôt s fallbackom
-        const getValue = (obj, key, fallback = 0) => {
-            const value = obj[key];
-            return (value !== undefined && value !== null && !isNaN(value)) ? value : fallback;
+        // Načítanie hodnôt s fallbackom
+        const values = {
+            production_kw: getSafeValue(data, 'production_kw'),
+            consumption_kw: getSafeValue(data, 'consumption_kw'),
+            grid_export_kw: getSafeValue(data, 'grid_export_kw'),
+            battery_charge_kw: getSafeValue(data, 'battery_charge_kw'),
+            battery_level_percent: getSafeValue(data, 'battery_level_percent'),
+            pvGenerationToday: getSafeValue(data, 'pvGenerationToday'),
+            totalGeneration: getSafeValue(data, 'totalGeneration'),
+            incomeToday: getSafeValue(data, 'incomeToday'),
+            totalIncome: getSafeValue(data, 'totalIncome')
         };
 
-        // Hlavné hodnoty
-        document.getElementById('pv-power').textContent = 
-            `${getValue(data, 'production_kw').toFixed(2)} kW`;
-        document.getElementById('battery-soc').textContent = 
-            `${getValue(data, 'battery_level_percent')}%`;
+        // Výpočet odhadu dennej výroby ak chýba
+        if (values.pvGenerationToday === 0 && values.production_kw > 0) {
+            values.pvGenerationToday = values.production_kw * config.calculation.dailyEstimateFactor;
+        }
 
-        // Štatistiky výroby
-        document.getElementById('pv-generation-today').textContent = 
-            `${getValue(data, 'pvGenerationToday', getValue(data, 'production_kw') * 8).toFixed(2)} kWh`;
-        document.getElementById('total-generation').textContent = 
-            `${getValue(data, 'totalGeneration', 27470.30).toLocaleString('sk-SK')} kWh`;
+        // Aktualizácia UI
+        document.getElementById('pv-power').textContent = `${formatNumber(values.production_kw)} kW`;
+        document.getElementById('battery-soc').textContent = `${Math.round(values.battery_level_percent)}%`;
         
-        // Finančné údaje (fallback na 0)
-        document.getElementById('income-today').textContent = 
-            `${getValue(data, 'incomeToday').toFixed(2)} EUR`;
-        document.getElementById('total-income').textContent = 
-            `${getValue(data, 'totalIncome').toFixed(2)} EUR`;
+        document.getElementById('pv-generation-today').textContent = `${formatNumber(values.pvGenerationToday)} kWh`;
+        document.getElementById('total-generation').textContent = `${formatNumber(values.totalGeneration)} kWh`;
+        document.getElementById('income-today').textContent = `${formatNumber(values.incomeToday)} EUR`;
+        document.getElementById('total-income').textContent = `${formatNumber(values.totalIncome)} EUR`;
 
-        // Detaily (kW → W)
-        document.getElementById('pv-w').textContent = 
-            getValue(data, 'production_kw') * 1000;
-        document.getElementById('battery-w').textContent = 
-            Math.abs(getValue(data, 'battery_charge_kw') * 1000);
-        document.getElementById('grid-w').textContent = 
-            getValue(data, 'grid_export_kw') * 1000;
-        document.getElementById('load-w').textContent = 
-            getValue(data, 'consumption_kw') * 1000;
+        document.getElementById('pv-w').textContent = formatNumber(values.production_kw * 1000, 0);
+        document.getElementById('battery-w').textContent = formatNumber(Math.abs(values.battery_charge_kw * 1000), 0);
+        document.getElementById('grid-w').textContent = formatNumber(values.grid_export_kw * 1000, 0);
+        document.getElementById('load-w').textContent = formatNumber(values.consumption_kw * 1000, 0);
 
-        // Dátum a čas
+        // Spracovanie dátumu
         try {
-            const date = new Date(data.timestamp || new Date());
-            document.getElementById('current-date').textContent = 
-                date.toLocaleDateString('sk-SK') || "Dátum nedostupný";
+            const date = data.timestamp ? new Date(data.timestamp) : new Date();
+            document.getElementById('current-date').textContent = date.toLocaleDateString('sk-SK');
         } catch {
             document.getElementById('current-date').textContent = "Dátum nedostupný";
         }
     }
 
-    // Načítanie dát
-    fetch('data.json')
-        .then(response => {
-            if (!response.ok) throw new Error(`Chyba servera: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
+    // Načítanie dát s pokročilým ošetrením chýb
+    const loadData = async () => {
+        try {
+            const response = await fetch('data.json');
+            
+            if (!response.ok) throw new Error(`HTTP chyba: ${response.status}`);
+            if (response.headers.get('content-type')?.includes('application/json') === false) {
+                throw new Error("Neplatný formát odpovede");
+            }
+            
+            const data = await response.json();
             console.log("Načítané dáta:", data);
-            if (!data || typeof data !== 'object') throw new Error("Neplatný formát dát");
+            
+            if (!data || typeof data !== 'object') throw new Error("Neplatná štruktúra dát");
             updateDashboard(data);
-        })
-        .catch(error => {
-            console.error("Chyba:", error);
-            // Fallback na testovacie dáta
-            updateDashboard({
-                timestamp: new Date().toISOString(),
-                production_kw: 3.32,
-                consumption_kw: 1.85,
-                grid_export_kw: 0.55,
-                battery_charge_kw: 0.3,
-                battery_level_percent: 40,
-                pvGenerationToday: 13.90,
-                totalGeneration: 27470.30,
-                incomeToday: 0.00,
-                totalIncome: 0.00
-            });
-            document.querySelector('.dashboard').style.border = "2px solid red";
-        });
+            
+        } catch (error) {
+            console.error("Chyba pri načítavaní:", error);
+            updateDashboard(config.fallbackValues);
+            document.querySelector('.dashboard').style.border = "2px solid orange";
+            document.getElementById('pv-power').textContent += " (demo)";
+        }
+    };
+
+    // Spustenie načítania
+    document.addEventListener('DOMContentLoaded', loadData);
 </script>
 </body>
 </html>
