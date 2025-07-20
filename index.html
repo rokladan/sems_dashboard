@@ -1,98 +1,156 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SEMS+ Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    canvas {
-      width: 90vw;
-      max-width: 600px;
-      height: 50vh;
-    }
-    h1 {
-      margin-bottom: 10px;
-    }
-    .data-block {
-      margin: 10px 0;
-      font-size: 1.2em;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodWe SEMS Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .weather {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .weather-day {
+            font-weight: bold;
+        }
+        .energy-flow {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .power-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .chart-container {
+            margin: 30px 0;
+            height: 250px;
+            position: relative;
+        }
+        .chart {
+            display: flex;
+            height: 200px;
+            align-items: flex-end;
+            justify-content: space-around;
+            border-bottom: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .chart-bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+        .chart-bar {
+            width: 40px;
+            background: #27ae60;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease;
+        }
+        .chart-label {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+        }
+        .test-mode {
+            color: #e67e22;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <h1>SEMS+ Live Dáta</h1>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Rokla</h1>
+            <div>SN: 9010KETU21CW1446 | Model: GW10k-ET</div>
+        </div>
 
-  <div class="data-block" id="timestamp"></div>
-  <div class="data-block">Výroba: <span id="production"></span> kW</div>
-  <div class="data-block">Spotreba: <span id="consumption"></span> kW</div>
-  <div class="data-block">Export do siete: <span id="export"></span> kW</div>
-  <div class="data-block">Import zo siete: <span id="import"></span> kW</div>
-  <div class="data-block">Nabíjanie batérie: <span id="charge"></span> kW</div>
-  <div class="data-block">Vybitie batérie: <span id="discharge"></span> kW</div>
-  <div class="data-block">Stav batérie: <span id="battery"></span> %</div>
+        <div class="weather">
+            <div class="weather-day">Today<br><strong>21°C</strong></div>
+            <div class="weather-day">Saturday<br><strong>14/24°C</strong></div>
+            <div class="weather-day">Sunday<br><strong>15/28°C</strong></div>
+            <div class="weather-day">Monday<br><strong>15/25°C</strong></div>
+        </div>
 
-  <canvas id="powerChart"></canvas>
+        <div class="energy-flow">
+            <div>Working (On-Grid)</div>
+            <div class="power-value">1,09 kW</div>
+            <div>PV Power</div>
+            <div>0%</div>
+        </div>
 
-  <script>
-    fetch('data.json')
-      .then(response => response.json())
-      .then(data => {
-        // Zobrazenie hodnôt
-        document.getElementById('timestamp').textContent = 'Čas: ' + new Date(data.timestamp).toLocaleString();
-        document.getElementById('production').textContent = data.production_kw;
-        document.getElementById('consumption').textContent = data.consumption_kw;
-        document.getElementById('export').textContent = data.grid_export_kw;
-        document.getElementById('import').textContent = data.grid_import_kw;
-        document.getElementById('charge').textContent = data.battery_charge_kw;
-        document.getElementById('discharge').textContent = data.battery_discharge_kw;
-        document.getElementById('battery').textContent = data.battery_level_percent;
+        <div class="chart-container">
+            <h3 style="text-align: center;">Denná produkcia (kWh)</h3>
+            <div class="chart" id="production-chart">
+                <!-- Graf sa vygeneruje cez JavaScript -->
+            </div>
+        </div>
 
-        // Vykreslenie grafu
-        const ctx = document.getElementById('powerChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: ['Výroba', 'Spotreba', 'Export', 'Import', 'Nabíjanie', 'Vybitie'],
-            datasets: [{
-              label: 'Energia (kW)',
-              data: [
-                data.production_kw,
-                data.consumption_kw,
-                data.grid_export_kw,
-                data.grid_import_kw,
-                data.battery_charge_kw,
-                data.battery_discharge_kw
-              ],
-              backgroundColor: [
-                '#4caf50', '#f44336', '#2196f3', '#ff9800', '#9c27b0', '#795548'
-              ]
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: false }
-            },
-            scales: {
-              y: { beginAtZero: true }
-            }
-          }
-        });
-      })
-      .catch(error => {
-        console.error('Chyba pri načítaní JSON:', error);
-      });
-  </script>
+        <div class="footer">
+            <span>18.7.2025</span> | 
+            <span class="test-mode">TEST MODE</span> | 
+            SOC: <span>0%</span>
+        </div>
+    </div>
+
+    <script>
+        // Testovacie dáta pre graf
+        const chartData = {
+            times: ["6:00", "9:00", "12:00", "15:00", "18:00", "21:00"],
+            values: [0.5, 2.1, 3.8, 2.9, 1.2, 0.1] // Hodnoty v kWh
+        };
+
+        // Vytvorenie grafu
+        function createChart() {
+            const chart = document.getElementById('production-chart');
+            const maxValue = Math.max(...chartData.values);
+            
+            chartData.values.forEach((value, index) => {
+                const barContainer = document.createElement('div');
+                barContainer.className = 'chart-bar-container';
+                
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = `${(value / maxValue) * 100}%`;
+                bar.title = `${value.toFixed(1)} kWh`;
+                
+                const label = document.createElement('div');
+                label.className = 'chart-label';
+                label.textContent = chartData.times[index];
+                
+                barContainer.appendChild(bar);
+                barContainer.appendChild(label);
+                chart.appendChild(barContainer);
+            });
+        }
+
+        // Spustenie po načítaní stránky
+        window.addEventListener('DOMContentLoaded', createChart);
+    </script>
 </body>
 </html>
