@@ -1,156 +1,205 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodWe SEMS Dashboard</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-        .dashboard {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .weather {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .weather-day {
-            font-weight: bold;
-        }
-        .energy-flow {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .power-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        .chart-container {
-            margin: 30px 0;
-            height: 250px;
-            position: relative;
-        }
-        .chart {
-            display: flex;
-            height: 200px;
-            align-items: flex-end;
-            justify-content: space-around;
-            border-bottom: 1px solid #eee;
-            padding-top: 20px;
-        }
-        .chart-bar-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-        }
-        .chart-bar {
-            width: 40px;
-            background: #27ae60;
-            border-radius: 5px 5px 0 0;
-            transition: height 0.5s ease;
-        }
-        .chart-label {
-            margin-top: 5px;
-            font-size: 12px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #7f8c8d;
-        }
-        .test-mode {
-            color: #e67e22;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FV Výroba & Spotreba - Portrait 1920x1200</title>
+<style>
+  body {
+    background: #141a1f;
+    color: #e6efe6;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0; padding: 0;
+  }
+  .dashboard {
+    max-width: 720px; /* Rozumná fixná šírka pre portrait s 1920px výškou */
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 20px;
+  }
+  .card {
+    background: rgba(30, 50, 60, 0.9);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 8px #1a2a32c7;
+  }
+  h2 {
+    margin-top: 0;
+    font-weight: 600;
+    font-size: 1.25rem;
+    border-bottom: 1px solid #274683;
+    padding-bottom: 0.25rem;
+  }
+  .stats-overview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .energy-flow {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 1.5rem;
+    color: #4aff69;
+    padding: 1rem 0;
+  }
+  .energy-flow div {
+    text-align: center;
+  }
+  canvas {
+    width: 100% !important;
+    height: 280px !important;
+  }
+  .pie-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+  .pie-container canvas {
+    width: 45% !important;
+    height: 280px !important;
+  }
+  /* Menšie texty v kartách */
+  .label {
+    font-size: 0.9rem;
+    color: #9dbcaf;
+  }
+  /* Footer */
+  footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #556677;
+    margin-top: 2rem;
+  }
+</style>
 </head>
 <body>
-    <div class="dashboard">
-        <div class="header">
-            <h1>Rokla</h1>
-            <div>SN: 9010KETU21CW1446 | Model: GW10k-ET</div>
-        </div>
+  <main class="dashboard">
+    <!-- Hlavný prehľad -->
+    <section class="card stats-overview">
+      <h2>Prehľad výroby a príjmov</h2>
+      <div>Výroba spolu: <span id="totalGen">27,469.6 MWh</span></div>
+      <div>Príjem spolu: <span id="totalIncome">0 EUR</span></div>
+    </section>
 
-        <div class="weather">
-            <div class="weather-day">Today<br><strong>21°C</strong></div>
-            <div class="weather-day">Saturday<br><strong>14/24°C</strong></div>
-            <div class="weather-day">Sunday<br><strong>15/28°C</strong></div>
-            <div class="weather-day">Monday<br><strong>15/25°C</strong></div>
-        </div>
+    <!-- Základné údaje o elektrárni -->
+    <section class="card">
+      <h2>Elektráreň RoK1a</h2>
+      <div class="label">Kapacita: <strong id="capacity">10 kW</strong></div>
+      <div class="label">Adresa: Píla, Slovensko</div>
+      <div class="label">Spustenie: 09.09.2022</div>
+    </section>
 
-        <div class="energy-flow">
-            <div>Working (On-Grid)</div>
-            <div class="power-value">1,09 kW</div>
-            <div>PV Power</div>
-            <div>0%</div>
-        </div>
+    <!-- Tok energie -->
+    <section class="card">
+      <h2>Tok energie</h2>
+      <div class="energy-flow">
+        <div>🔆<br><span id="pvPower">4893 W</span></div>
+        <div>🔋<br><span id="batteryState">0%</span></div>
+        <div>🏠<br><span id="homePower">3546 W</span></div>
+        <div>⚡<br><span id="gridPower">1347 W</span></div>
+      </div>
+    </section>
 
-        <div class="chart-container">
-            <h3 style="text-align: center;">Denná produkcia (kWh)</h3>
-            <div class="chart" id="production-chart">
-                <!-- Graf sa vygeneruje cez JavaScript -->
-            </div>
-        </div>
+    <!-- Mesiacná výroba - stĺpcový graf -->
+    <section class="card">
+      <h2>Výroba - 12 mesiacov (kWh)</h2>
+      <canvas id="monthlyProduction"></canvas>
+    </section>
 
-        <div class="footer">
-            <span>18.7.2025</span> | 
-            <span class="test-mode">TEST MODE</span> | 
-            SOC: <span>0%</span>
-        </div>
-    </div>
+    <!-- Podiely - kruhové grafy -->
+    <section class="card">
+      <h2>Distribúcia spotreby a výroby</h2>
+      <div class="pie-container">
+        <canvas id="pieInHouse"></canvas>
+        <canvas id="pieGridFeedIn"></canvas>
+      </div>
+    </section>
 
-    <script>
-        // Testovacie dáta pre graf
-        const chartData = {
-            times: ["6:00", "9:00", "12:00", "15:00", "18:00", "21:00"],
-            values: [0.5, 2.1, 3.8, 2.9, 1.2, 0.1] // Hodnoty v kWh
-        };
+    <!-- Ekologický prínos -->
+    <section class="card stats-overview">
+      <h2>Ekologický prínos</h2>
+      <div>Ušetrené CO₂: <span id="co2Saved">0 kg</span></div>
+      <div>Stromy: <span id="treesSaved">0</span></div>
+      <div>Uhlie: <span id="coalSaved">0 kg</span></div>
+    </section>
 
-        // Vytvorenie grafu
-        function createChart() {
-            const chart = document.getElementById('production-chart');
-            const maxValue = Math.max(...chartData.values);
-            
-            chartData.values.forEach((value, index) => {
-                const barContainer = document.createElement('div');
-                barContainer.className = 'chart-bar-container';
-                
-                const bar = document.createElement('div');
-                bar.className = 'chart-bar';
-                bar.style.height = `${(value / maxValue) * 100}%`;
-                bar.title = `${value.toFixed(1)} kWh`;
-                
-                const label = document.createElement('div');
-                label.className = 'chart-label';
-                label.textContent = chartData.times[index];
-                
-                barContainer.appendChild(bar);
-                barContainer.appendChild(label);
-                chart.appendChild(barContainer);
-            });
-        }
+    <!-- Počasie -->
+    <section class="card">
+      <h2>Počasie a predpoveď</h2>
+      <div id="weatherCurrent">19°C, premenlivé</div>
+      <div class="label">Dnes: 15-21°C | Zajtra: 14-24°C</div>
+    </section>
 
-        // Spustenie po načítaní stránky
-        window.addEventListener('DOMContentLoaded', createChart);
-    </script>
+    <!-- Stav meniča -->
+    <section class="card">
+      <h2>Menič / Invertor</h2>
+      <div>ID: <span id="inverterId">9010KETU21C</span></div>
+      <div>Typ: <span id="inverterType">GW10K-ET</span></div>
+      <div>Stav: <span id="inverterStatus">Online</span></div>
+    </section>
+
+  </main>
+
+  <footer>
+    Widget pre FV elektráreň – pre Android 13 monitor (portrait)
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Tu pridaj napojenie na JSON a naplnenie dát do DOM
+
+    // Príklad: stĺpcový graf - výroba za 12 mesiacov
+    const ctx = document.getElementById('monthlyProduction').getContext('2d');
+    const monthlyChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Máj', 'Jún', 'Júl', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],
+        datasets: [{
+          label: 'Výroba kWh',
+          data: [520, 610, 410, 700, 770, 670, 850, 800, 1030, 950, 1200, 1280],
+          backgroundColor: '#4aff69cc'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // Kruhové grafy - príklad
+    const ctxPie1 = document.getElementById('pieInHouse').getContext('2d');
+    new Chart(ctxPie1, {
+      type: 'doughnut',
+      data: {
+        labels: ['Vlastná spotreba', 'Do siete'],
+        datasets: [{
+          data: [28.82, 71.18],
+          backgroundColor: ['#39e09b', '#274683']
+        }]
+      },
+      options: { cutout: '65%', plugins:{legend:{display:false}} }
+    });
+
+    const ctxPie2 = document.getElementById('pieGridFeedIn').getContext('2d');
+    new Chart(ctxPie2, {
+      type: 'doughnut',
+      data: {
+        labels: ['PV + BAT', 'Z siete'],
+        datasets: [{
+          data: [69.98, 30.02],
+          backgroundColor: ['#19bfff', '#e0e14a']
+        }]
+      },
+      options: { cutout: '65%', plugins:{legend:{display:false}} }
+    });
+  </script>
 </body>
 </html>
